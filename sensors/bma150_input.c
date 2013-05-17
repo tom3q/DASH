@@ -20,6 +20,8 @@
 #include <string.h>
 #include "sensors_log.h"
 #include <sys/ioctl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <linux/input.h>
@@ -159,6 +161,7 @@ static char *bma150_get_rate_path(int fd)
 	char sysfs_dev_path[100];
 
 	if (ioctl(fd, EVIOCGPHYS(sizeof(sysfs_dev_path)), sysfs_dev_path) != -1) {
+		struct stat stat_info;
 		const char *rate = "/rate";
 		int len = strlen(sysfs_dev_path) + strlen(rate) + 1;
 		ret = malloc(len);
@@ -166,9 +169,17 @@ static char *bma150_get_rate_path(int fd)
 			free(ret);
 			ret = NULL;
 		}
+		if (stat(ret, &stat_info) < 0) {
+			rate = "/poll";
+			snprintf(ret, len, "%s%s", sysfs_dev_path, rate);
+			if (stat(ret, &stat_info) < 0) {
+				free(ret);
+				ret = NULL;
+			}
+		}
 	}
 	if (!ret)
-		ALOGE("%s: failed to get rate path", __func__);
+		ALOGE("%s: failed to get rate/poll path", __func__);
 
 	return ret;
 }
