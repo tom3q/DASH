@@ -6,7 +6,7 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE := libAKMtastic
 LOCAL_MODULE_TAGS := optional
-LOCAL_SRC_FILES := akmtastic.c
+LOCAL_SRC_FILES := akmtastic.cpp
 include $(BUILD_STATIC_LIBRARY)
 
 endif
